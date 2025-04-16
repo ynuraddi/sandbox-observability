@@ -51,9 +51,11 @@ func main() {
 	logger.With("app", "myapp", "version", "1.0.0").Info("Hello, world!")
 	// logger.WithGroup("user").With("id", 123).Info("Hello, world!")
 
+	// Можно вложить так чтобы все новые аттрибуты были частью группы
 	logger1 := logger.With("func", 1).WithGroup("user").With("id", 123)
 	f(context.WithValue(ctx, LoggerKey, logger1))
 
+	// Можно вложить так чтобы группа была просто аттрибутом
 	logger2 := logger.With("func", 2, "user", slog.GroupValue(slog.Int("id", 123)))
 	f(context.WithValue(ctx, LoggerKey, logger2))
 }
@@ -70,6 +72,7 @@ func f(ctx context.Context) {
 	logger.WithGroup("user").With("id", 1).Info("msg", "name", Name{"first", "last"})
 }
 
+// Для отображения структуры в логе
 type Name struct {
 	First, Last string
 }
