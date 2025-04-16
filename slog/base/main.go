@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"time"
 )
 
 const (
@@ -82,4 +83,38 @@ func (n Name) LogValue() slog.Value {
 		slog.String("first", n.First),
 		slog.String("last", n.Last),
 	)
+}
+
+func LogExample(ctx context.Context, a int) error {
+	logger := ctx.Value(LoggerKey).(*slog.Logger)
+
+	// У каждого уровня логирования своя роль
+	// INFO - отвечает за основные действия
+	logger.Info("start")
+	now := time.Now()
+
+	var sum int
+	for i := 0; i < a; i++ {
+		// DEBUG - отвечает за детализированную информацию
+		logger.Debug("step", "current_sum", sum, "increment", i)
+		sum += i
+
+		time.Sleep(100 * time.Millisecond)
+	}
+
+	if time.Since(now) > time.Second {
+		// WARN - отвечает за некритические ошибки, на которые стоит обратить внимание
+		logger.Warn("slow operation", "duration", time.Since(now))
+	}
+
+	logger.Info("finish", "sum", sum, "duration", time.Since(now))
+
+	if sum > 100 {
+		// ERROR - отвечает за ошибки
+		err := fmt.Errorf("sum is too big")
+		logger.Error("", "error", err)
+		return err
+	}
+
+	return nil
 }
