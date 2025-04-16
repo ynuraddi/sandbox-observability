@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log/slog"
 	"os"
 )
@@ -11,6 +12,9 @@ const (
 )
 
 func main() {
+	// LEVELING
+	fmt.Println("LEVELING")
+
 	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
 		AddSource: false,
 		Level:     slog.LevelInfo,
@@ -31,4 +35,48 @@ func main() {
 
 	ctx := context.Background()
 	logger.LogAttrs(ctx, LevelNotice, "Hello, notice!")
+
+	fmt.Println()
+
+	// GROUPS
+	fmt.Println("GROUPS")
+	logger.InfoContext(ctx, "group", slog.Int64("int", 1), slog.Group("aboba", slog.String("a", "a"), slog.String("b", "b")))
+	logger.Info("group")
+
+	fmt.Println()
+
+	// ENRICHED LOGGER
+	fmt.Println("ENRICHED LOGGING")
+	logger = slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	logger.With("app", "myapp", "version", "1.0.0").Info("Hello, world!")
+	// logger.WithGroup("user").With("id", 123).Info("Hello, world!")
+
+	logger1 := logger.With("func", 1).WithGroup("user").With("id", 123)
+	f(context.WithValue(ctx, LoggerKey, logger1))
+
+	logger2 := logger.With("func", 2, "user", slog.GroupValue(slog.Int("id", 123)))
+	f(context.WithValue(ctx, LoggerKey, logger2))
+}
+
+type LoggerCtxKey string
+
+const (
+	LoggerKey LoggerCtxKey = "logger"
+)
+
+func f(ctx context.Context) {
+	logger := ctx.Value(LoggerKey).(*slog.Logger)
+	logger.With("value", 1).Info("msg")
+	logger.WithGroup("user").With("id", 1).Info("msg", "name", Name{"first", "last"})
+}
+
+type Name struct {
+	First, Last string
+}
+
+func (n Name) LogValue() slog.Value {
+	return slog.GroupValue(
+		slog.String("first", n.First),
+		slog.String("last", n.Last),
+	)
 }
