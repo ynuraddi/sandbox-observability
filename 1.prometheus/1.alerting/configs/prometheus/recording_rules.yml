@@ -1,0 +1,8 @@
+groups:
+  - name: sensor-recording
+    interval: 30s
+    rules:
+      - record: avg:cpu_temperature_celsius:5m
+        expr: avg_over_time(cpu_temperature_celsius[5m])
+      - record: avg:mem_usage_percentage:5m
+        expr: avg_over_time(mem_usage_percentage[5m])

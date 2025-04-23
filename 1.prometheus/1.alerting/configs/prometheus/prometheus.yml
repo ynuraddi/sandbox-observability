@@ -1,0 +1,18 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'sensor'
+    static_configs:
+    - targets: 
+      - sensor-service:8081
+
+rule_files:
+  - "recording_rules.yml"
+  - "alerting_rules.yml"
+
+alerting:
+  alertmanagers:
+     - static_configs:
+       - targets:
+         - alertmanager:9093

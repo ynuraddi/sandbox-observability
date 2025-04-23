@@ -1,0 +1,19 @@
+groups:
+  - name: sensor-alerts
+    rules:
+      - alert: HighCPUTemperature
+        expr: cpu_temperature_celsius > 80
+        for: 1s
+        labels:
+          team: cpu
+        annotations:
+          summary: "Высокая температура CPU"
+          description: "Температура CPU превышает 80°C в течение 1 ceкунды."
+      - alert: HighMemoryUsage
+        expr: mem_usage_percentage > 90
+        for: 1s
+        labels:
+          team: memory
+        annotations:
+          summary: "Высокое использование памяти"
+          description: "Использование памяти превышает 90% в течение 2 ceкунды."
